@@ -8,6 +8,7 @@ wheels/
 audio.wav
 frames/
 movies/
+frames_tmp/
 
 # Virtual environments
 .venv
