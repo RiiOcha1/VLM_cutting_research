@@ -72,14 +72,27 @@ def extract_frames(video_path: str, output_dir: str, fps: int = 1) -> list[str]:
 
 
 # ====== 2) 動画 → 音声抽出 ======
-def extract_audio(video_path: str, audio_path: str) -> str:
+def extract_audio(video_path: str, audio_path: str) -> str | None:
     """
-    moviepy を使って動画から音声のみを抽出（wav）
+    moviepy を使って動画から音声のみを抽出（wav）。
+    音声トラックが無い場合は None を返してスキップする。
     """
     clip = VideoFileClip(video_path)
-    audio_clip = clip.audio
-    audio_clip.write_audiofile(audio_path, codec="pcm_s16le")
-    audio_clip.close()
+
+    # 音声トラックが無い場合はスキップ
+    if clip.audio is None:
+        print("[INFO] この動画には音声トラックがありません。音声抽出をスキップします。")
+        clip.close()
+        return None
+
+    try:
+        clip.audio.write_audiofile(audio_path, codec="pcm_s16le")
+        print(f"[INFO] 音声を抽出しました: {audio_path}")
+    except Exception as e:
+        print(f"[WARNING] 音声抽出中にエラーが発生しましたがスキップします: {e}")
+        clip.close()
+        return None
+
     clip.close()
     return audio_path
 
